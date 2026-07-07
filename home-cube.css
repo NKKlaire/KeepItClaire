@@ -164,8 +164,7 @@
   }
 
   .site-tag,
-  .button,
-  .edit-toggle {
+  .button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -182,8 +181,7 @@
   }
 
   .site-tag:hover,
-  .button:hover,
-  .edit-toggle:hover {
+  .button:hover {
     background: rgba(255, 255, 255, 0.16);
     transform: translateY(-1px);
   }
@@ -260,17 +258,6 @@
     background: var(--active-accent, var(--lime));
     transform: scale(1.85) rotate(45deg);
   }
-
-  .edit-toggle {
-    position: fixed;
-    right: var(--ui-inset);
-    bottom: var(--ui-inset);
-    z-index: calc(var(--z-ui) + 3);
-    cursor: pointer;
-    color: var(--ink);
-    background: var(--cyan);
-  }
-}
 
 @layer scene {
   .home-shell {
@@ -708,11 +695,6 @@
       max-width: 12ch;
       font-size: clamp(2.25rem, 10.5vw, 4.15rem);
       line-height: 1.08;
-    }
-
-    .edit-toggle {
-      right: 1rem;
-      bottom: 1rem;
     }
   }
 

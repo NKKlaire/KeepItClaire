@@ -154,7 +154,6 @@
         .button,
         .cta,
         .cta-back,
-        .edit-toggle,
         .tune-toggle {
           display: inline-flex;
           align-items: center;
@@ -172,8 +171,7 @@
         }
 
         .site-tag:hover,
-        .button:hover,
-        .edit-toggle:hover {
+        .button:hover {
           background: rgba(255, 255, 255, 0.14);
           transform: translateY(-1px);
         }
@@ -283,16 +281,6 @@
           font-size: clamp(1.75rem, 4vw, 4rem);
           font-weight: 650;
           line-height: 1;
-        }
-
-        .edit-toggle {
-          position: fixed;
-          right: var(--ui-inset);
-          bottom: var(--ui-inset);
-          z-index: calc(var(--z-ui) + 2);
-          cursor: pointer;
-          color: var(--ink);
-          background: var(--cyan);
         }
 
         .tune-toggle {
@@ -1124,7 +1112,6 @@
     </div>
 
     <button class="tune-toggle" id="tune-art" type="button">Tune images</button>
-    <button class="edit-toggle" id="edit-copy" type="button">Edit copy</button>
 
     <aside class="art-tuner" id="art-tuner" aria-label="作品图片调节面板" hidden>
       <h3>Art Tuner</h3>
@@ -1309,7 +1296,6 @@
       const N = FACE_NAMES.length;
       const STOPS = buildStops(N);
       const SWAP_RADIUS = 3;
-      const COPY_KEY = "keep-it-claire:art-copy:v53-blog-date-art-copy-polish";
       const IMAGE_KEY = "keep-it-claire:art-image-tuner:v50-cube-sync-gallery-polish";
       let imageOverrides = loadImageOverrides();
       let selectedTuneId = SORTED_ARTWORKS[0]?.id || "";
@@ -1322,7 +1308,6 @@
         sceneName: document.getElementById("scene_name"),
         captionNum: document.getElementById("face_caption_num"),
         captionName: document.getElementById("face_caption_name"),
-        editCopy: document.getElementById("edit-copy"),
         tuneArt: document.getElementById("tune-art"),
         tuner: document.getElementById("art-tuner"),
         tuneSelect: document.getElementById("tune-select"),
@@ -1730,32 +1715,6 @@ frameColor: "${snap.frameColor}",`;
         anchorAnim = requestAnimationFrame(tick);
       }
 
-      function restoreEditableCopy() {
-        const saved = localStorage.getItem(COPY_KEY);
-        if (!saved) return;
-        try {
-          const cardCopies = JSON.parse(saved);
-          document.querySelectorAll(".text-card").forEach((card, index) => {
-            if (cardCopies[index]) card.innerHTML = cardCopies[index];
-          });
-          revealEls = [...document.querySelectorAll(".tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back, .h-line")];
-        } catch {
-          localStorage.removeItem(COPY_KEY);
-        }
-      }
-
-      function setEditMode(enabled) {
-        document.querySelectorAll(".text-card").forEach((card) => {
-          card.contentEditable = enabled ? "true" : "false";
-        });
-        dom.editCopy.textContent = enabled ? "Save copy" : "Edit copy";
-        if (!enabled) {
-          const cardCopies = [...document.querySelectorAll(".text-card")].map((card) => card.innerHTML);
-          localStorage.setItem(COPY_KEY, JSON.stringify(cardCopies));
-        }
-      }
-
-      restoreEditableCopy();
       resize();
 
       if (motionAllowed) {
@@ -1821,12 +1780,6 @@ frameColor: "${snap.frameColor}",`;
         const index = sections.indexOf(target);
         const y = index >= 0 ? sectionTops[index] : target.getBoundingClientRect().top + window.scrollY;
         smoothScrollToY(Math.max(0, y), 900, index);
-      });
-
-      let editing = false;
-      dom.editCopy.addEventListener("click", () => {
-        editing = !editing;
-        setEditMode(editing);
       });
 
       dom.tuneArt.addEventListener("click", () => {

@@ -3289,11 +3289,6 @@ body[data-page="article"] .static-pill {
   cursor: pointer;
 }
 
-body.is-editing .tag-remove {
-  display: inline-grid;
-  place-items: center;
-}
-
 .tag-input-row {
   display: flex;
   gap: 0.5rem;
@@ -3313,12 +3308,6 @@ body.is-editing .tag-remove {
   border: 1px solid var(--line);
   outline: 0;
   clip-path: polygon(var(--angle-sm) 0, 100% 0, 100% calc(100% - var(--angle-sm)), calc(100% - var(--angle-sm)) 100%, 0 100%, 0 var(--angle-sm));
-}
-
-body.is-editing [contenteditable="true"] {
-  outline: 2px solid rgba(223, 255, 115, 0.36);
-  outline-offset: 0.18rem;
-  background: linear-gradient(90deg, rgba(223, 255, 115, 0.12), rgba(36, 172, 235, 0.08));
 }
 
 .article-content-sheet {

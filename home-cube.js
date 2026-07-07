@@ -1,5 +1,4 @@
 const SCENES = Array.isArray(window.__HOME_CUBE_SCENES__) ? window.__HOME_CUBE_SCENES__.slice(0, 6) : [];
-const COPY_KEY = "keep-it-claire:home-cube-copy:v51-art-order-home-v43-blog-html";
 const FACE_ORDER = ["top", "front", "right", "back", "left", "bottom"];
 const ART_CLASSES = ["one", "two", "three", "four", "five", "six"];
 const STOPS = [
@@ -20,7 +19,6 @@ const dom = {
   progFill: document.getElementById("progress-fill"),
   sceneName: document.getElementById("scene-name"),
   cursorLight: document.getElementById("cursor-light"),
-  editCopy: document.getElementById("edit-copy"),
 };
 
 let sections = [];
@@ -34,7 +32,6 @@ let smoothProgress = 0;
 let velocity = 0;
 let lastNow = performance.now();
 let anchorAnim = null;
-let editing = false;
 const motionAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function escapeHTML(value = "") {
@@ -220,32 +217,6 @@ function smoothScrollToY(targetY, duration = 900, targetIndex = null) {
   anchorAnim = requestAnimationFrame(tick);
 }
 
-function restoreEditableCopy() {
-  const saved = localStorage.getItem(COPY_KEY);
-  if (!saved) return;
-  try {
-    const copies = JSON.parse(saved);
-    document.querySelectorAll(".story-card").forEach((card, index) => {
-      if (copies[index]) card.innerHTML = copies[index];
-    });
-    revealEls = [...document.querySelectorAll(".kicker, .story-title, .story-body, .tag-row, .stat-row, .button")];
-  } catch {
-    localStorage.removeItem(COPY_KEY);
-  }
-}
-
-function setEditMode(enabled) {
-  document.querySelectorAll(".story-card").forEach((card) => {
-    card.contentEditable = enabled ? "true" : "false";
-  });
-  dom.editCopy.textContent = enabled ? "Save copy" : "Edit copy";
-
-  if (!enabled) {
-    const copies = [...document.querySelectorAll(".story-card")].map((card) => card.innerHTML);
-    localStorage.setItem(COPY_KEY, JSON.stringify(copies));
-  }
-}
-
 function initRevealObserver() {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -312,11 +283,6 @@ function initEvents() {
     const y = index >= 0 ? sectionTops[index] : target.getBoundingClientRect().top + window.scrollY;
     smoothScrollToY(Math.max(0, y), 900, index);
   });
-
-  dom.editCopy.addEventListener("click", () => {
-    editing = !editing;
-    setEditMode(editing);
-  });
 }
 
 function frame(now) {
@@ -342,7 +308,6 @@ function frame(now) {
 
 if (SCENES.length) {
   renderPage();
-  restoreEditableCopy();
   initRevealObserver();
   initPointerLight();
   initEvents();
