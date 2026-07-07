@@ -1,0 +1,1893 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="claire">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Art | Keep it Claire</title>
+    <meta name="description" content="Keep it Claire 的 Art Gallery：用 3D 方块翻转浏览作品。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @layer reset, tokens, base, scene, ui, cards, art, reveal, responsive;
+
+      @layer reset {
+        *,
+        *::before,
+        *::after {
+          box-sizing: border-box;
+        }
+
+        * {
+          margin: 0;
+        }
+      }
+
+      @layer tokens {
+        :root {
+          color-scheme: dark;
+          --bg: #060606;
+          --text: #f7f2e8;
+          --muted: rgba(247, 242, 232, 0.66);
+          --line: rgba(255, 255, 255, 0.14);
+          --ink: #101010;
+          --lime: #dfff73;
+          --blue: #24aceb;
+          --green: #31cc70;
+          --violet: #c1b2ff;
+          --orange: #ff8f4e;
+          --pink: #ff89be;
+          --cyan: #8ae5de;
+          --cream: #f7f2e8;
+          --display: "Fraunces", "Noto Serif SC", serif;
+          --ui: "Space Grotesk", "Noto Sans SC", sans-serif;
+          --body: "Space Grotesk", "Noto Sans SC", sans-serif;
+          --topbar-h: 4.75rem;
+          --ui-inset: clamp(1rem, 2.2vw, 2rem);
+          --cut: 1.15rem;
+          --z-ui: 20;
+        }
+      }
+
+      @layer base {
+        html {
+          scroll-behavior: auto;
+        }
+
+        body {
+          min-height: 100vh;
+          overflow-x: hidden;
+          color: var(--text);
+          background:
+            radial-gradient(circle at 9% 12%, rgba(223, 255, 115, 0.16), transparent 24rem),
+            radial-gradient(circle at 88% 18%, rgba(36, 172, 235, 0.18), transparent 26rem),
+            radial-gradient(circle at 42% 84%, rgba(255, 137, 190, 0.13), transparent 30rem),
+            linear-gradient(145deg, #050505, #151018 55%, #071116);
+          font-family: var(--body);
+        }
+
+        body::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          z-index: -2;
+          pointer-events: none;
+          opacity: 0.08;
+          background-image:
+            linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+          background-size: 54px 54px;
+        }
+
+        body::after {
+          content: "";
+          position: fixed;
+          inset: 0;
+          z-index: -1;
+          pointer-events: none;
+          background:
+            radial-gradient(circle at var(--mx, 70%) var(--my, 35%), rgba(223, 255, 115, 0.18), transparent 18rem),
+            radial-gradient(circle at calc(var(--mx, 70%) - 18%) calc(var(--my, 35%) + 18%), rgba(36, 172, 235, 0.13), transparent 20rem);
+          mix-blend-mode: screen;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        button {
+          appearance: none;
+          border: 0;
+          color: inherit;
+          font: inherit;
+        }
+
+        .clip {
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+        }
+      }
+
+      @layer ui {
+        .topbar {
+          position: fixed;
+          inset: 0 0 auto;
+          z-index: calc(var(--z-ui) + 3);
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 1rem;
+          width: min(1480px, calc(100vw - 2rem));
+          min-height: var(--topbar-h);
+          margin: 0 auto;
+          padding: 0.85rem 0;
+          background: rgba(6, 6, 6, 0.78);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(18px);
+        }
+
+        .brand,
+        h1,
+        h2,
+        #face_caption_name {
+          font-family: var(--display);
+          letter-spacing: -0.04em;
+        }
+
+        .brand {
+          font-family: var(--ui);
+          font-size: 1.05rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+        }
+
+        .nav {
+          display: flex;
+          justify-content: center;
+          gap: 0.35rem;
+        }
+
+        .site-tag,
+        .button,
+        .cta,
+        .cta-back,
+        .edit-toggle,
+        .tune-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 2.5rem;
+          padding: 0.66rem 0.92rem;
+          font-weight: 700;
+          background: rgba(255, 255, 255, 0.075);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+          transition:
+            background 180ms ease,
+            color 180ms ease,
+            transform 180ms ease;
+        }
+
+        .site-tag:hover,
+        .button:hover,
+        .edit-toggle:hover {
+          background: rgba(255, 255, 255, 0.14);
+          transform: translateY(-1px);
+        }
+
+        .site-tag.current {
+          color: var(--ink);
+          background: var(--pink);
+        }
+
+        .button {
+          background: var(--cream);
+          color: var(--ink);
+        }
+
+        #hud {
+          position: fixed;
+          top: calc(var(--topbar-h) + 1.2rem);
+          right: var(--ui-inset);
+          z-index: var(--z-ui);
+          display: none;
+          text-align: right;
+          color: var(--muted);
+          font-size: 0.68rem;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .progress-bar {
+          position: relative;
+          width: 8rem;
+          height: 2px;
+          margin-top: 0.55rem;
+          margin-left: auto;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.18);
+        }
+
+        .progress-fill {
+          position: absolute;
+          inset: 0 auto 0 0;
+          width: 0%;
+          background: var(--lime);
+        }
+
+        #scene_name {
+          margin-top: 0.45rem;
+          color: var(--lime);
+        }
+
+        #scene_strip {
+          position: fixed;
+          left: var(--ui-inset);
+          top: 50%;
+          z-index: var(--z-ui);
+          display: grid;
+          gap: 0.82rem;
+          transform: translateY(-50%);
+        }
+
+        .scene-dot {
+          position: relative;
+          display: block;
+          width: 0.48rem;
+          height: 0.48rem;
+          background: rgba(247, 242, 232, 0.35);
+          clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
+          transition:
+            background 180ms ease,
+            transform 180ms ease;
+        }
+
+        .scene-dot::before {
+          content: "";
+          position: absolute;
+          inset: -0.35rem;
+        }
+
+        .scene-dot.active {
+          background: var(--lime);
+          transform: scale(1.85) rotate(45deg);
+        }
+
+        #face_caption {
+          position: fixed;
+          left: 50%;
+          bottom: var(--ui-inset);
+          z-index: var(--z-ui);
+          display: none;
+          text-align: center;
+          transform: translateX(-50%);
+          pointer-events: none;
+          user-select: none;
+        }
+
+        #face_caption_num {
+          color: var(--lime);
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+        }
+
+        #face_caption_name {
+          margin-top: 0.2rem;
+          color: rgba(247, 242, 232, 0.34);
+          font-family: var(--display);
+          font-size: clamp(1.75rem, 4vw, 4rem);
+          font-weight: 650;
+          line-height: 1;
+        }
+
+        .edit-toggle {
+          position: fixed;
+          right: var(--ui-inset);
+          bottom: var(--ui-inset);
+          z-index: calc(var(--z-ui) + 2);
+          cursor: pointer;
+          color: var(--ink);
+          background: var(--cyan);
+        }
+
+        .tune-toggle {
+          position: fixed;
+          right: calc(var(--ui-inset) + 8.4rem);
+          bottom: var(--ui-inset);
+          z-index: calc(var(--z-ui) + 2);
+          cursor: pointer;
+          color: var(--cream);
+          background: rgba(17, 17, 17, 0.82);
+          border-color: rgba(255, 255, 255, 0.16);
+          backdrop-filter: blur(14px);
+        }
+      }
+
+      @layer scene {
+        #scene {
+          position: fixed;
+          inset: var(--topbar-h) 0 0;
+          z-index: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          perspective: 1120px;
+          pointer-events: none;
+        }
+
+        #cube {
+          --s: min(61vw, 66vh, 560px);
+          position: relative;
+          width: var(--s);
+          height: var(--s);
+          transform: rotateX(90deg) rotateY(0deg);
+          transform-style: preserve-3d;
+          will-change: transform;
+        }
+
+        .face {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          backface-visibility: hidden;
+          background:
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 42px),
+            repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 42px),
+            #111;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          box-shadow: inset 0 0 0 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .face[data-face="front"] {
+          transform: translateZ(calc(var(--s) / 2));
+        }
+
+        .face[data-face="back"] {
+          transform: rotateY(180deg) translateZ(calc(var(--s) / 2));
+        }
+
+        .face[data-face="right"] {
+          transform: rotateY(90deg) translateZ(calc(var(--s) / 2));
+        }
+
+        .face[data-face="left"] {
+          transform: rotateY(-90deg) translateZ(calc(var(--s) / 2));
+        }
+
+        .face[data-face="top"] {
+          transform: rotateX(-90deg) translateZ(calc(var(--s) / 2));
+        }
+
+        .face[data-face="bottom"] {
+          transform: rotateX(90deg) translateZ(calc(var(--s) / 2));
+        }
+
+        .cube-art {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          display: grid;
+          place-items: center;
+          padding: clamp(0.85rem, 2vw, 1.45rem);
+          background:
+            radial-gradient(circle at 15% 15%, color-mix(in srgb, var(--art-bg, var(--lime)) 64%, transparent), transparent 16rem),
+            linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 38%),
+            #060606;
+        }
+
+        .cube-art::before,
+        .cube-art::after {
+          content: "";
+          position: absolute;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        .cube-art::before {
+          inset: 0;
+          border: clamp(0.55rem, 1.2vw, 0.9rem) solid var(--art-bg, var(--lime));
+          mix-blend-mode: screen;
+          opacity: 0.72;
+        }
+
+        .cube-art::after {
+          width: 46%;
+          height: 16%;
+          right: 7%;
+          bottom: 7%;
+          background: color-mix(in srgb, var(--art-bg, var(--pink)) 72%, transparent);
+          clip-path: polygon(0 0, 100% 0, 100% 70%, 84% 100%, 0 100%);
+          opacity: 0.62;
+          mix-blend-mode: multiply;
+        }
+
+        .cube-art img {
+          position: relative;
+          z-index: 1;
+          width: min(78%, 28rem);
+          height: min(78%, 28rem);
+          object-fit: contain;
+          object-position: var(--work-position, 50% 50%);
+          filter: saturate(1.05) contrast(1.02);
+          padding: clamp(0.55rem, 1.2vw, 0.95rem);
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(247, 242, 232, 0.72)),
+            var(--cream);
+          border: clamp(0.7rem, 1.3vw, 1rem) solid color-mix(in srgb, var(--frame, var(--art-bg, var(--lime))) 82%, white);
+          box-shadow:
+            0 22px 70px rgba(0, 0, 0, 0.42),
+            0 0 52px color-mix(in srgb, var(--frame, var(--art-bg, var(--lime))) 38%, transparent);
+          transform: translate(var(--work-x, 0%), var(--work-y, 0%)) scale(var(--work-scale, 1));
+        }
+
+        .face-label {
+          position: absolute;
+          left: clamp(1rem, 2vw, 1.4rem);
+          top: clamp(1rem, 2vw, 1.4rem);
+          z-index: 3;
+          padding: 0.4rem 0.55rem;
+          color: var(--ink);
+          background: color-mix(in srgb, var(--art-bg, var(--lime)) 84%, white);
+          font-size: 0.68rem;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+      }
+
+      @layer cards {
+        #scroll_container {
+          position: relative;
+          z-index: 1;
+        }
+
+        section {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          padding: calc(var(--topbar-h) + 3rem) calc(5rem + var(--ui-inset)) 6rem 5rem;
+        }
+
+        .text-card {
+          position: relative;
+          max-width: 27rem;
+          padding: 1.45rem;
+          color: var(--card-ink, var(--ink));
+          background: var(--card-bg, var(--lime));
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.22);
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+          letter-spacing: 0;
+          backdrop-filter: blur(12px);
+        }
+
+        .text-card::before {
+          content: "";
+          position: absolute;
+          inset: -1.35rem;
+          z-index: -1;
+          background: color-mix(in srgb, var(--card-bg, var(--lime)) 54%, transparent);
+          filter: blur(34px);
+          opacity: 0.48;
+          pointer-events: none;
+        }
+
+        .text-card.right {
+          margin-left: auto;
+        }
+
+        .text-card.center {
+          margin-inline: auto;
+          text-align: center;
+        }
+
+        .tag,
+        .mini-label {
+          display: inline-flex;
+          width: fit-content;
+          margin-bottom: 1rem;
+          padding: 0.32rem 0.5rem;
+          color: var(--card-ink, var(--ink));
+          background: var(--card-chip-bg, rgba(255, 255, 255, 0.32));
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+        }
+
+        h1 {
+          font-size: clamp(3.15rem, 7.1vw, 6.8rem);
+          font-weight: 650;
+          line-height: 0.96;
+          letter-spacing: -0.045em;
+        }
+
+        h2 {
+          font-size: clamp(2.2rem, 5.2vw, 4.85rem);
+          font-weight: 650;
+          line-height: 1.08;
+          letter-spacing: -0.035em;
+        }
+
+        .body-text {
+          margin-top: 1.1rem;
+          color: var(--card-muted, rgba(16, 16, 16, 0.72));
+          font-size: 1.02rem;
+          line-height: 1.9;
+        }
+
+        .h-line {
+          width: 4rem;
+          height: 0.5rem;
+          margin-bottom: 1rem;
+          background: var(--card-line, #111);
+          transform-origin: left;
+        }
+
+        .text-card.right .h-line {
+          margin-left: auto;
+          transform-origin: right;
+        }
+
+        .stat-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.6rem;
+          margin-top: 1.35rem;
+        }
+
+        .stat {
+          min-width: 5.5rem;
+          padding: 0.55rem 0.6rem;
+          color: var(--card-ink, var(--ink));
+          background: var(--card-chip-bg, rgba(255, 255, 255, 0.28));
+          text-align: left;
+        }
+
+        .stat-num {
+          display: block;
+          font-family: var(--display);
+          font-size: 2rem;
+          font-weight: 650;
+          line-height: 1;
+        }
+
+        .stat-label {
+          display: block;
+          margin-top: 0.25rem;
+          font-size: 0.64rem;
+          font-weight: 700;
+        }
+
+        .cta-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.65rem;
+          margin-top: 1.4rem;
+        }
+
+        .text-card.right .cta-row {
+          justify-content: flex-end;
+        }
+
+        .cta,
+        .cta-back {
+          min-height: 2.55rem;
+          color: var(--cream);
+          background: #111;
+        }
+
+        .cta-back {
+          color: var(--card-ink, var(--ink));
+          background: var(--card-chip-bg, rgba(255, 255, 255, 0.34));
+        }
+
+        .cta:hover,
+        .cta-back:hover {
+          transform: translateY(-2px);
+        }
+
+        .archive-strip {
+          position: relative;
+          z-index: 2;
+          display: grid;
+          grid-template-columns: minmax(11rem, 18rem) minmax(0, 1fr);
+          gap: clamp(1rem, 2.2vw, 1.8rem);
+          width: min(1480px, calc(100vw - 2rem));
+          margin: -5.5rem auto 5rem;
+          padding: clamp(1rem, 2.2vw, 1.8rem);
+          background: rgba(6, 6, 6, 0.58);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          backdrop-filter: blur(18px);
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+        }
+
+        .gallery-head {
+          align-self: end;
+          display: grid;
+          gap: 0.6rem;
+        }
+
+        .gallery-kicker {
+          color: var(--lime);
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .archive-strip h2 {
+          max-width: 12rem;
+          color: var(--cream);
+          font-size: clamp(2.45rem, 4.8vw, 5.2rem);
+          font-weight: 650;
+          line-height: 1;
+        }
+
+        .copy-snippet {
+          min-height: 2.55rem;
+          padding: 0.66rem 0.9rem;
+          color: var(--cream);
+          background: rgba(255, 255, 255, 0.09);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          cursor: pointer;
+          clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+        }
+
+        .archive-list {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: clamp(0.7rem, 1.15vw, 1rem);
+        }
+
+        .archive-list.compact {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .archive-item {
+          position: relative;
+          display: grid;
+          grid-template-rows: auto auto;
+          gap: 0.7rem;
+          min-height: 0;
+          padding: clamp(0.46rem, 0.82vw, 0.72rem);
+          overflow: hidden;
+          color: var(--ink);
+          background:
+            radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--art-bg, var(--lime)) 42%, transparent), transparent 14rem),
+            color-mix(in srgb, var(--art-bg, var(--lime)) 68%, #f7f2e8);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          cursor: zoom-in;
+          clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+          box-shadow:
+            0 22px 70px rgba(0, 0, 0, 0.32),
+            0 0 42px color-mix(in srgb, var(--art-bg, var(--lime)) 22%, transparent);
+          transition:
+            transform 220ms ease,
+            filter 220ms ease;
+        }
+
+        .archive-item:hover {
+          transform: translateY(-4px);
+          filter: saturate(1.08);
+        }
+
+        .archive-list.compact .archive-item {
+          min-height: 0;
+        }
+
+        .art-crop {
+          position: relative;
+          aspect-ratio: var(--gallery-aspect, 4 / 5);
+          overflow: hidden;
+          display: grid;
+          place-items: center;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(247, 242, 232, 0.6)),
+            var(--cream);
+          border: clamp(0.42rem, 0.8vw, 0.75rem) solid color-mix(in srgb, var(--frame, var(--cream)) 82%, white);
+          box-shadow:
+            inset 0 0 0 1px rgba(0, 0, 0, 0.14),
+            0 18px 42px rgba(0, 0, 0, 0.22);
+        }
+
+        .art-crop img {
+          width: 100%;
+          height: 100%;
+          object-fit: var(--gallery-fit, cover);
+          object-position: var(--gallery-position, 50% 50%);
+          transform: translate(var(--gallery-x, 0%), var(--gallery-y, 0%)) scale(var(--gallery-scale, 1));
+          transform-origin: center;
+          filter: saturate(1.04) contrast(1.02);
+          transition:
+            transform 260ms ease,
+            filter 260ms ease;
+        }
+
+        .archive-item:hover .art-crop img {
+          transform: translate(var(--gallery-x, 0%), var(--gallery-y, 0%)) scale(calc(var(--gallery-scale, 1) * 1.025));
+        }
+
+        .archive-meta {
+          display: grid;
+          gap: 0.45rem;
+          padding: 0.16rem 0.08rem 0;
+        }
+
+        .archive-meta strong {
+          color: var(--ink);
+          font-family: var(--display);
+          font-size: clamp(0.82rem, 1vw, 1.05rem);
+          font-weight: 650;
+          line-height: 1.25;
+          letter-spacing: -0.012em;
+        }
+
+        .archive-meta span {
+          display: none;
+        }
+
+        .archive-list.compact .archive-meta span {
+          display: none;
+        }
+
+        .archive-list.compact .archive-meta strong {
+          font-size: 1rem;
+        }
+
+        .gallery-item-small .archive-meta span {
+          font-size: 0.86rem;
+        }
+
+        .lightbox {
+          position: fixed;
+          inset: 0;
+          z-index: calc(var(--z-ui) + 8);
+          display: grid;
+          grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+          gap: clamp(1rem, 2vw, 2rem);
+          padding: clamp(1rem, 3vw, 3rem);
+          background: rgba(3, 3, 4, 0.86);
+          backdrop-filter: blur(24px);
+        }
+
+        .lightbox[hidden] {
+          display: none;
+        }
+
+        .lightbox-art {
+          display: grid;
+          place-items: center;
+          min-height: 0;
+          padding: clamp(0.75rem, 2vw, 1.4rem);
+          background:
+            radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--art-bg, var(--lime)) 38%, transparent), transparent 22rem),
+            rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+        }
+
+        .lightbox-art img {
+          max-width: 100%;
+          max-height: calc(100vh - 8rem);
+          object-fit: contain;
+          padding: clamp(0.55rem, 1.2vw, 1rem);
+          background: var(--cream);
+          border: clamp(0.55rem, 1.1vw, 1rem) solid color-mix(in srgb, var(--frame, var(--cream)) 78%, white);
+          box-shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+        }
+
+        .lightbox-copy {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          color: var(--ink);
+          background: var(--card-bg, var(--lime));
+          padding: clamp(1.1rem, 2vw, 1.7rem);
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+        }
+
+        .lightbox-copy h3 {
+          font-family: var(--display);
+          font-size: clamp(2.4rem, 5vw, 4.6rem);
+          font-weight: 650;
+          line-height: 1.04;
+          letter-spacing: -0.04em;
+        }
+
+        .lightbox-copy p {
+          margin-top: 1rem;
+          color: rgba(16, 16, 16, 0.72);
+          font-size: 1.02rem;
+          line-height: 1.9;
+        }
+
+        .lightbox-close {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          width: 3rem;
+          height: 3rem;
+          color: var(--ink);
+          background: var(--cream);
+          cursor: pointer;
+          clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        .art-tuner {
+          position: fixed;
+          right: var(--ui-inset);
+          bottom: calc(var(--ui-inset) + 3.5rem);
+          z-index: calc(var(--z-ui) + 7);
+          width: min(25rem, calc(100vw - 2rem));
+          max-height: min(76vh, 46rem);
+          overflow: auto;
+          padding: 1rem;
+          color: var(--cream);
+          background: rgba(6, 6, 6, 0.86);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          box-shadow: 0 24px 90px rgba(0, 0, 0, 0.46);
+          backdrop-filter: blur(24px);
+          clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+        }
+
+        .art-tuner[hidden] {
+          display: none;
+        }
+
+        .art-tuner h3 {
+          font-family: var(--display);
+          font-size: 1.8rem;
+          font-weight: 650;
+          letter-spacing: -0.03em;
+        }
+
+        .tuner-note {
+          margin-top: 0.35rem;
+          color: var(--muted);
+          font-size: 0.88rem;
+          line-height: 1.65;
+        }
+
+        .tuner-field {
+          display: grid;
+          gap: 0.4rem;
+          margin-top: 0.8rem;
+        }
+
+        .tuner-field label {
+          color: var(--muted);
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        .tuner-field select,
+        .tuner-field input,
+        .tuner-field textarea {
+          width: 100%;
+          min-height: 2.4rem;
+          padding: 0.58rem 0.68rem;
+          color: var(--cream);
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          font: inherit;
+        }
+
+        .tuner-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.72rem;
+        }
+
+        .tuner-output {
+          min-height: 8rem;
+          resize: vertical;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 0.78rem;
+          line-height: 1.55;
+        }
+
+        .copy-snippet {
+          width: 100%;
+          margin-top: 0.75rem;
+          color: var(--ink);
+          background: var(--cyan);
+          font-weight: 800;
+        }
+      }
+
+      @layer reveal {
+        :is(.tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back, .h-line) {
+          opacity: 0;
+          translate: 0 0.8rem;
+          transition:
+            opacity 520ms ease,
+            translate 520ms ease;
+        }
+
+        :is(h1, h2) {
+          translate: 0 1.2rem;
+          transition-delay: 80ms;
+        }
+
+        .body-text {
+          transition-delay: 160ms;
+        }
+
+        .stat-row,
+        .cta,
+        .cta-back {
+          transition-delay: 240ms;
+        }
+
+        .h-line {
+          scale: 0 1;
+          translate: 0 0;
+        }
+
+        :is(.tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back).visible {
+          opacity: 1;
+          translate: 0 0;
+        }
+
+        .h-line.visible {
+          opacity: 1;
+          scale: 1 1;
+        }
+      }
+
+      @layer responsive {
+        @media (max-width: 900px) {
+          .topbar {
+            grid-template-columns: 1fr;
+            width: 100%;
+            padding: 0.85rem 1rem;
+          }
+
+          .nav {
+            justify-content: flex-start;
+            overflow-x: auto;
+          }
+
+          #scene {
+            align-items: flex-start;
+            padding-top: 8.5rem;
+          }
+
+          #cube {
+            --s: min(82vw, 42vh, 430px);
+          }
+
+          #scene_strip,
+          #hud {
+            display: none;
+          }
+
+          section {
+            min-height: 145vh;
+            align-items: flex-end;
+            padding: 8rem 1rem 4rem;
+          }
+
+          #s0 {
+            min-height: 100vh;
+          }
+
+          .text-card,
+          .text-card.right,
+          .text-card.center {
+            max-width: 100%;
+            margin-inline: 0;
+          }
+
+          h1 {
+            font-size: clamp(2.75rem, 13vw, 4.8rem);
+            line-height: 1;
+          }
+
+          h2 {
+            font-size: clamp(2.15rem, 11vw, 4rem);
+            line-height: 1.1;
+          }
+
+          #face_caption {
+            display: none;
+          }
+
+          .archive-strip {
+            grid-template-columns: 1fr;
+            margin-top: -2rem;
+          }
+
+          .gallery-head {
+            align-items: flex-start;
+          }
+
+          .archive-list {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .archive-list.compact {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .lightbox {
+            grid-template-columns: 1fr;
+            overflow: auto;
+          }
+
+          .lightbox-art img {
+            max-height: 62vh;
+          }
+
+          .tune-toggle {
+            right: var(--ui-inset);
+            bottom: calc(var(--ui-inset) + 3.4rem);
+          }
+
+          .art-tuner {
+            bottom: calc(var(--ui-inset) + 6.8rem);
+          }
+        }
+
+        @media (max-width: 620px) {
+          .archive-list,
+          .archive-list.compact {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .archive-strip h2 {
+            max-width: 100%;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body data-page="art">
+    <header class="topbar">
+      <a class="brand" href="./index.html">Keep it Claire</a>
+      <nav class="nav" aria-label="Keep it Claire 导航">
+        <a class="site-tag" href="./index.html">Home</a>
+        <a class="site-tag" href="./blog.html">Blog</a>
+        <a class="site-tag current" href="./art.html">Art</a>
+        <a class="site-tag" href="./about.html">About</a>
+      </nav>
+      <a class="button" href="./index.html">Home</a>
+    </header>
+
+    <div id="scene" aria-hidden="true">
+      <div id="cube">
+        <div class="face" data-face="top" data-i="0">
+          <div class="cube-art contain" style="--art-bg: #dfff73">
+            <img src="./assets/artworks/originals/不要再在冬季哭泣_26.01.11起.png" alt="不要再在冬季哭泣" />
+            <span class="face-label">01 Emotion</span>
+          </div>
+        </div>
+        <div class="face" data-face="front" data-i="1">
+          <div class="cube-art contain" style="--art-bg: #ff8f4e">
+            <img src="./assets/artworks/originals/女孩和小狗在爱尔兰🫧🎈我的第二幅绘画作品.PNG" alt="女孩和小狗在爱尔兰" />
+            <span class="face-label">02 Life Scene</span>
+          </div>
+        </div>
+        <div class="face" data-face="right" data-i="2">
+          <div class="cube-art" style="--art-bg: #ff89be">
+            <img src="./assets/artworks/originals/生万物，万物生🌱🌿🌳.PNG" alt="生万物，万物生" />
+            <span class="face-label">03 Life</span>
+          </div>
+        </div>
+        <div class="face" data-face="back" data-i="3">
+          <div class="cube-art" style="--art-bg: #24aceb">
+            <img src="./assets/artworks/originals/IMG_3969.PNG" alt="窗、海与猫" />
+            <span class="face-label">04 Window</span>
+          </div>
+        </div>
+        <div class="face" data-face="left" data-i="4">
+          <div class="cube-art contain" style="--art-bg: #c1b2ff">
+            <img src="./assets/artworks/originals/日落云边岸🌙凝眸自照见，我即我所觅。_1_雨天小苹果🍎_来自小红书网页版.jpg" alt="日落云边岸" />
+            <span class="face-label">05 Sunset</span>
+          </div>
+        </div>
+        <div class="face" data-face="bottom" data-i="5">
+          <div class="cube-art contain" style="--art-bg: #8ae5de">
+            <img src="./assets/artworks/originals/2026-06-30-upload-01/2026-06-30-01-forest-queen-close.jpg" alt="世界上没有幽灵公主，只有野兽相伴的女王" />
+            <span class="face-label">06 Queen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside id="hud" aria-label="浏览进度">
+      <div id="hud_pct">000%</div>
+      <div class="progress-bar"><div class="progress-fill" id="prog_fill"></div></div>
+      <div id="scene_name">生万物，万物生</div>
+    </aside>
+
+    <nav id="scene_strip" aria-label="作品导航">
+      <a href="#s0" class="scene-dot active" aria-label="生万物，万物生"></a>
+      <a href="#s1" class="scene-dot" aria-label="太阳图腾"></a>
+      <a href="#s2" class="scene-dot" aria-label="女孩和小狗在爱尔兰"></a>
+      <a href="#s3" class="scene-dot" aria-label="不要再在冬季哭泣"></a>
+      <a href="#s4" class="scene-dot" aria-label="静候佳音"></a>
+      <a href="#s5" class="scene-dot" aria-label="人物小像"></a>
+    </nav>
+
+    <div id="face_caption" aria-hidden="true">
+      <div id="face_caption_num">01</div>
+      <div id="face_caption_name">生万物，万物生</div>
+    </div>
+
+    <button class="tune-toggle" id="tune-art" type="button">Tune images</button>
+    <button class="edit-toggle" id="edit-copy" type="button">Edit copy</button>
+
+    <aside class="art-tuner" id="art-tuner" aria-label="作品图片调节面板" hidden>
+      <h3>Art Tuner</h3>
+      <p class="tuner-note">
+        这里用于预览裁切、缩放和画框比例。保存会写入本机浏览器预览；要长期生效，请复制下方片段回填到
+        <code>content/artworks.config.js</code>。
+      </p>
+      <div class="tuner-field">
+        <label for="tune-select">Artwork</label>
+        <select id="tune-select"></select>
+      </div>
+      <div class="tuner-grid">
+        <div class="tuner-field">
+          <label for="tune-scale">Scale</label>
+          <input id="tune-scale" type="range" min="0.5" max="5" step="0.01" />
+        </div>
+        <div class="tuner-field">
+          <label for="tune-aspect">Frame</label>
+          <select id="tune-aspect">
+            <option value="1 / 1">Square</option>
+            <option value="4 / 5">Portrait</option>
+            <option value="3 / 2">Wide</option>
+            <option value="16 / 10">Cinema</option>
+          </select>
+        </div>
+        <div class="tuner-field">
+          <label for="tune-x">Move X</label>
+          <input id="tune-x" type="range" min="-55" max="55" step="1" />
+        </div>
+        <div class="tuner-field">
+          <label for="tune-y">Move Y</label>
+          <input id="tune-y" type="range" min="-55" max="55" step="1" />
+        </div>
+        <div class="tuner-field">
+          <label for="tune-fit">Fit</label>
+          <select id="tune-fit">
+            <option value="cover">Crop / cover</option>
+            <option value="contain">Contain</option>
+          </select>
+        </div>
+        <div class="tuner-field">
+          <label for="tune-color">Card color</label>
+          <input id="tune-color" type="color" />
+        </div>
+        <div class="tuner-field">
+          <label for="tune-frame-color">Frame color</label>
+          <input id="tune-frame-color" type="color" />
+        </div>
+      </div>
+      <div class="tuner-field">
+        <label for="tune-snippet">Config snippet</label>
+        <textarea class="tuner-output" id="tune-snippet" readonly></textarea>
+      </div>
+      <button class="copy-snippet" id="copy-snippet" type="button">Copy snippet</button>
+    </aside>
+
+    <div class="lightbox" id="art-lightbox" hidden>
+      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭作品预览">×</button>
+      <div class="lightbox-art" id="lightbox-art"></div>
+      <article class="lightbox-copy" id="lightbox-copy"></article>
+    </div>
+
+    <main id="scroll_container">
+      <section id="s0">
+        <article class="text-card" style="--card-bg: var(--lime)">
+          <span class="mini-label">01 — Life Moments</span>
+          <h1>生万物，<br />万物生</h1>
+          <p class="body-text">
+            我先把它放在第一面：一片温柔的小池塘，白色鸭子、草木和水色都在轻轻生长。
+            这张很像我想留住的 life moments，不宏大，但很有生命力。
+          </p>
+          <div class="stat-row">
+            <div class="stat"><span class="stat-num">12</span><span class="stat-label">Works</span></div>
+            <div class="stat"><span class="stat-num">06</span><span class="stat-label">Cube faces</span></div>
+          </div>
+          <div class="cta-row">
+            <a class="cta" href="#s1">Turn →</a>
+          </div>
+        </article>
+      </section>
+
+      <section id="s1">
+        <article class="text-card right" style="--card-bg: var(--orange)">
+          <div class="h-line"></div>
+          <span class="tag">02 — Totem</span>
+          <h2>太阳<br />也可以<br />自造</h2>
+          <p class="body-text">
+            这张黑白图腾有一种小小的仪式感。它不像一幅完整叙事，更像一个被画出来的信号：
+            我在这里，我正在给世界造一个自己的太阳。
+          </p>
+          <div class="cta-row">
+            <a class="cta-back" href="#s0">← Back</a>
+            <a class="cta" href="#s2">Turn →</a>
+          </div>
+        </article>
+      </section>
+
+      <section id="s2">
+        <article class="text-card" style="--card-bg: var(--pink)">
+          <div class="h-line"></div>
+          <span class="tag">03 — Life Scene</span>
+          <h2>女孩<br />小狗<br />和路</h2>
+          <p class="body-text">
+            一面温暖的红墙、一个女孩、一只小狗。它很日常，却又像从记忆里亮出来的一帧。
+            我喜欢这种被生活轻轻撞到的画面。
+          </p>
+          <div class="cta-row">
+            <a class="cta-back" href="#s1">← Back</a>
+            <a class="cta" href="#s3">Turn →</a>
+          </div>
+        </article>
+      </section>
+
+      <section id="s3">
+        <article class="text-card right" style="--card-bg: var(--cyan)">
+          <div class="h-line"></div>
+          <span class="tag">04 — Emotion</span>
+          <h2>把眼泪<br />画成<br />颜色</h2>
+          <p class="body-text">
+            红色、蓝色和眼睛挤在一起，像一团还没被说出口的情绪。
+            我觉得这张很接近“把模糊变得可见”：不解释，但让它出现。
+          </p>
+          <div class="stat-row">
+            <div class="stat"><span class="stat-num">Red</span><span class="stat-label">Heat</span></div>
+            <div class="stat"><span class="stat-num">Blue</span><span class="stat-label">Winter</span></div>
+          </div>
+          <div class="cta-row">
+            <a class="cta-back" href="#s2">← Back</a>
+            <a class="cta" href="#s4">Turn →</a>
+          </div>
+        </article>
+      </section>
+
+      <section id="s4">
+        <article class="text-card" style="--card-bg: var(--violet)">
+          <div class="h-line"></div>
+          <span class="tag">05 — Quiet Room</span>
+          <h2>等待<br />也是<br />一种画</h2>
+          <p class="body-text">
+            椅子、桌子、书、花瓶和大量留白。它不是热闹的作品，但很像一个人坐下来之前，
+            房间先替她安静了一会儿。
+          </p>
+          <div class="cta-row">
+            <a class="cta-back" href="#s3">← Back</a>
+            <a class="cta" href="#s5">Turn →</a>
+          </div>
+        </article>
+      </section>
+
+      <section id="s5">
+        <article class="text-card right" style="--card-bg: var(--cyan)">
+          <div class="h-line"></div>
+          <span class="tag">06 — Portrait</span>
+          <h2>保留<br />一点<br />私人</h2>
+          <p class="body-text">
+            这张人物小像很轻，像只是短暂停在纸上的一个侧影。它提醒我：作品不一定要用力，
+            有时柔和、克制和一点点未完成也足够成立。
+          </p>
+          <div class="cta-row">
+            <a class="cta-back" href="#s4">← Back</a>
+            <a class="cta" href="#s0">Begin again →</a>
+          </div>
+        </article>
+      </section>
+
+      <aside class="archive-strip" aria-label="作品缩略档案">
+        <h2>All works in this small room</h2>
+        <div class="archive-list" id="archive-list"></div>
+      </aside>
+    </main>
+
+    <script src="./content/artworks.config.js"></script>
+    <script>
+      const ARTWORKS = window.__ARTWORKS__ || [];
+      const SORTED_ARTWORKS = [...ARTWORKS].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+      const CUBE_WORKS = SORTED_ARTWORKS.filter((artwork) => artwork.placement === "cube").slice(0, 6);
+      const GALLERY_WORKS = SORTED_ARTWORKS.filter((artwork) => artwork.placement !== "cube");
+      const FACE_LAYOUT = ["top", "front", "right", "back", "left", "bottom"];
+      const FACE_NAMES = CUBE_WORKS.length
+        ? CUBE_WORKS.map((artwork) => artwork.title)
+        : ["生万物，万物生", "太阳图腾", "女孩和小狗在爱尔兰", "不要再在冬季哭泣", "静候佳音", "人物小像"];
+      const N = FACE_NAMES.length;
+      const STOPS = buildStops(N);
+      const SWAP_RADIUS = 3;
+      const COPY_KEY = "keep-it-claire:art-copy:v53-blog-date-art-copy-polish";
+      const IMAGE_KEY = "keep-it-claire:art-image-tuner:v50-cube-sync-gallery-polish";
+      let imageOverrides = loadImageOverrides();
+      let selectedTuneId = SORTED_ARTWORKS[0]?.id || "";
+
+      const dom = {
+        cube: document.getElementById("cube"),
+        scrollEl: document.getElementById("scroll_container"),
+        hudPct: document.getElementById("hud_pct"),
+        progFill: document.getElementById("prog_fill"),
+        sceneName: document.getElementById("scene_name"),
+        captionNum: document.getElementById("face_caption_num"),
+        captionName: document.getElementById("face_caption_name"),
+        editCopy: document.getElementById("edit-copy"),
+        tuneArt: document.getElementById("tune-art"),
+        tuner: document.getElementById("art-tuner"),
+        tuneSelect: document.getElementById("tune-select"),
+        tuneScale: document.getElementById("tune-scale"),
+        tuneX: document.getElementById("tune-x"),
+        tuneY: document.getElementById("tune-y"),
+        tuneAspect: document.getElementById("tune-aspect"),
+        tuneFit: document.getElementById("tune-fit"),
+        tuneColor: document.getElementById("tune-color"),
+        tuneFrameColor: document.getElementById("tune-frame-color"),
+        tuneSnippet: document.getElementById("tune-snippet"),
+        copySnippet: document.getElementById("copy-snippet"),
+        lightbox: document.getElementById("art-lightbox"),
+        lightboxArt: document.getElementById("lightbox-art"),
+        lightboxCopy: document.getElementById("lightbox-copy"),
+        lightboxClose: document.getElementById("lightbox-close"),
+        sceneStrip: document.getElementById("scene_strip"),
+        archiveList: document.getElementById("archive-list"),
+      };
+
+      renderArtPage();
+
+      let sceneDots = [...document.querySelectorAll(".scene-dot")];
+      let sections = [...document.querySelectorAll("#scroll_container section")];
+      let revealEls = [...document.querySelectorAll(".tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back, .h-line")];
+      const motionAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let maxScroll = 1;
+      let sectionTops = [];
+      let lastFaceIdx = -1;
+      let tgt = 0;
+      let smooth = 0;
+      let velocity = 0;
+      let lastNow = performance.now();
+      let anchorAnim = null;
+
+      function escapeHTML(value = "") {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function escapeAttr(value = "") {
+        return escapeHTML(value);
+      }
+
+      function loadImageOverrides() {
+        try {
+          return JSON.parse(localStorage.getItem(IMAGE_KEY) || "{}");
+        } catch {
+          localStorage.removeItem(IMAGE_KEY);
+          return {};
+        }
+      }
+
+      function viewArtwork(artwork) {
+        if (!artwork) return null;
+        return { ...artwork, ...(imageOverrides[artwork.id] || {}) };
+      }
+
+      function numericPercent(value, fallback = 0) {
+        const number = Number.parseFloat(String(value ?? "").replace("%", ""));
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      function galleryVars(artwork) {
+        const item = viewArtwork(artwork);
+        return `
+          --art-bg: ${item.color || "#dfff73"};
+          --card-bg: ${item.color || "#dfff73"};
+          --frame: ${item.frameColor || item.color || "#dfff73"};
+          --gallery-position: ${item.galleryPosition || item.position || "50% 50%"};
+          --gallery-scale: ${item.galleryScale ?? item.scale ?? 1};
+          --gallery-x: ${item.galleryOffsetX || item.offsetX || "0%"};
+          --gallery-y: ${item.galleryOffsetY || item.offsetY || "0%"};
+          --gallery-aspect: ${item.galleryAspect || "4 / 5"};
+          --gallery-fit: ${item.galleryFit || "cover"};
+        `;
+      }
+
+      function cubeVars(artwork) {
+        const item = viewArtwork(artwork);
+        return `
+          --art-bg: ${item.color || "#dfff73"};
+          --frame: ${item.frameColor || item.color || "#dfff73"};
+          --work-position: ${item.position || "50% 50%"};
+          --work-scale: ${item.scale ?? 1};
+          --work-x: ${item.offsetX || "0%"};
+          --work-y: ${item.offsetY || "0%"};
+        `;
+      }
+
+      function displayTitleHTML(artwork) {
+        return artwork.displayTitle || escapeHTML(artwork.title || "");
+      }
+
+      function renderStats(stats = []) {
+        if (!stats.length) return "";
+        return `
+          <div class="stat-row">
+            ${stats
+              .map(
+                (item) => `
+                  <div class="stat">
+                    <span class="stat-num">${escapeHTML(item.value)}</span>
+                    <span class="stat-label">${escapeHTML(item.label)}</span>
+                  </div>
+                `,
+              )
+              .join("")}
+          </div>
+        `;
+      }
+
+      function renderArtPage() {
+        const cubeWorks = CUBE_WORKS.length ? CUBE_WORKS : SORTED_ARTWORKS.slice(0, 6);
+        dom.cube.innerHTML = cubeWorks
+          .map((artwork, index) => {
+            const item = viewArtwork(artwork);
+            const face = FACE_LAYOUT[index] || "front";
+            return `
+              <div class="face" data-face="${face}" data-i="${index}">
+                <div class="cube-art" data-artwork-id="${escapeAttr(item.id)}" style="${cubeVars(item)}">
+                  <img src="${escapeAttr(item.image)}" alt="${escapeAttr(item.title)}" />
+                  <span class="face-label">${String(index + 1).padStart(2, "0")} ${escapeHTML(item.label || item.series || "Artwork")}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        dom.sceneStrip.innerHTML = cubeWorks
+          .map((artwork, index) => `<a href="#s${index}" class="scene-dot${index === 0 ? " active" : ""}" aria-label="${escapeAttr(artwork.title)}"></a>`)
+          .join("");
+
+        const sectionsHTML = cubeWorks
+          .map((artwork, index) => {
+            const item = viewArtwork(artwork);
+            const nextIndex = index === cubeWorks.length - 1 ? 0 : index + 1;
+            const prevIndex = index === 0 ? cubeWorks.length - 1 : index - 1;
+            const side = index % 2 === 1 ? " right" : "";
+            const cardInk = item.textColor || "var(--ink)";
+            const cardMuted = item.mutedColor || "rgba(16, 16, 16, 0.72)";
+            const chipBg = item.chipColor || "rgba(255, 255, 255, 0.32)";
+            const lineColor = item.lineColor || "#111";
+            return `
+              <section id="s${index}">
+                <article class="text-card${side}" style="--card-bg: ${item.color || "var(--lime)"}; --card-ink: ${cardInk}; --card-muted: ${cardMuted}; --card-chip-bg: ${chipBg}; --card-line: ${lineColor};">
+                  ${index === 0 ? "" : '<div class="h-line"></div>'}
+                  <span class="${index === 0 ? "mini-label" : "tag"}">${escapeHTML(item.label || `${String(index + 1).padStart(2, "0")} — Artwork`)}</span>
+                  <h${index === 0 ? "1" : "2"}>${displayTitleHTML(item)}</h${index === 0 ? "1" : "2"}>
+                  <p class="body-text">${escapeHTML(item.description || item.summary || "")}</p>
+                  ${renderStats(item.stats)}
+                  <div class="cta-row">
+                    ${index === 0 ? "" : `<a class="cta-back" href="#s${prevIndex}">← Back</a>`}
+                    <a class="cta" href="#s${nextIndex}">${index === cubeWorks.length - 1 ? "Begin again" : "Turn"} →</a>
+                  </div>
+                </article>
+              </section>
+            `;
+          })
+          .join("");
+
+        const galleryWorks = GALLERY_WORKS.length ? GALLERY_WORKS : SORTED_ARTWORKS.slice(6);
+        const galleryHTML = `
+          <aside class="archive-strip" aria-label="作品缩略档案">
+            <div class="gallery-head">
+              <div class="gallery-kicker">Gallery / ${galleryWorks.length} works</div>
+              <h2>All works in this small room</h2>
+            </div>
+            <div class="archive-list" id="archive-list">
+              ${galleryWorks
+                .map(
+                  (artwork) => {
+                    const item = viewArtwork(artwork);
+                    return `
+                    <article
+                      class="archive-item"
+                      data-artwork-id="${escapeAttr(item.id)}"
+                      style="${galleryVars(item)}"
+                      tabindex="0"
+                      role="button"
+                      aria-label="查看作品：${escapeAttr(item.title)}"
+                    >
+                      <div class="art-crop">
+                        <img src="${escapeAttr(item.image)}" alt="${escapeAttr(item.title)}" loading="lazy" />
+                      </div>
+                      <div class="archive-meta">
+                        <strong>${escapeHTML(item.title)}</strong>
+                        <span>${escapeHTML(item.summary || item.label || "")}</span>
+                      </div>
+                    </article>
+                  `;
+                  },
+                )
+                .join("")}
+            </div>
+          </aside>
+        `;
+
+        dom.scrollEl.innerHTML = sectionsHTML + galleryHTML;
+        dom.archiveList = document.getElementById("archive-list");
+        renderTuneOptions();
+      }
+
+      function renderTuneOptions() {
+        if (!dom.tuneSelect) return;
+        dom.tuneSelect.innerHTML = SORTED_ARTWORKS.map((artwork) => {
+          const item = viewArtwork(artwork);
+          return `<option value="${escapeAttr(item.id)}">${String(item.order).padStart(2, "0")} · ${escapeHTML(item.title)}</option>`;
+        }).join("");
+        if (!selectedTuneId && SORTED_ARTWORKS[0]) selectedTuneId = SORTED_ARTWORKS[0].id;
+        dom.tuneSelect.value = selectedTuneId;
+        syncTunerControls();
+      }
+
+      function selectedArtwork() {
+        const source = SORTED_ARTWORKS.find((artwork) => artwork.id === selectedTuneId) || SORTED_ARTWORKS[0];
+        return source ? viewArtwork(source) : null;
+      }
+
+      function tuneSnapshot() {
+        return {
+          galleryScale: Number(dom.tuneScale.value || 1),
+          galleryOffsetX: `${Number(dom.tuneX.value || 0)}%`,
+          galleryOffsetY: `${Number(dom.tuneY.value || 0)}%`,
+          galleryAspect: dom.tuneAspect.value || "4 / 5",
+          galleryFit: dom.tuneFit.value || "cover",
+          color: dom.tuneColor.value || "#dfff73",
+          frameColor: dom.tuneFrameColor.value || dom.tuneColor.value || "#dfff73",
+        };
+      }
+
+      function syncTunerControls() {
+        const item = selectedArtwork();
+        if (!item || !dom.tuneScale) return;
+        dom.tuneScale.value = item.galleryScale ?? item.scale ?? 1;
+        dom.tuneX.value = numericPercent(item.galleryOffsetX || item.offsetX || "0%");
+        dom.tuneY.value = numericPercent(item.galleryOffsetY || item.offsetY || "0%");
+        dom.tuneAspect.value = item.galleryAspect || "4 / 5";
+        dom.tuneFit.value = item.galleryFit || "cover";
+        dom.tuneColor.value = item.color || "#dfff73";
+        dom.tuneFrameColor.value = item.frameColor || item.color || "#dfff73";
+        updateSnippet();
+      }
+
+      function updateSnippet() {
+        const item = selectedArtwork();
+        if (!item || !dom.tuneSnippet) return;
+        const snap = tuneSnapshot();
+        dom.tuneSnippet.value = `// Paste these fields into the "${item.id}" item in content/artworks.config.js
+galleryScale: ${snap.galleryScale},
+galleryOffsetX: "${snap.galleryOffsetX}",
+galleryOffsetY: "${snap.galleryOffsetY}",
+galleryAspect: "${snap.galleryAspect}",
+galleryFit: "${snap.galleryFit}",
+color: "${snap.color}",
+frameColor: "${snap.frameColor}",`;
+      }
+
+      function applyTunerChange() {
+        if (!selectedTuneId) return;
+        imageOverrides[selectedTuneId] = {
+          ...(imageOverrides[selectedTuneId] || {}),
+          ...tuneSnapshot(),
+        };
+        localStorage.setItem(IMAGE_KEY, JSON.stringify(imageOverrides));
+        renderArtPage();
+        sceneDots = [...document.querySelectorAll(".scene-dot")];
+        sections = [...document.querySelectorAll("#scroll_container section")];
+        revealEls = [...document.querySelectorAll(".tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back, .h-line")];
+        revealEls.forEach((element) => {
+          element.classList.add("visible");
+        });
+        buildSectionTops();
+        updateSnippet();
+      }
+
+      function openLightbox(id) {
+        const item = viewArtwork(SORTED_ARTWORKS.find((artwork) => artwork.id === id));
+        if (!item || !dom.lightbox) return;
+        dom.lightbox.style.setProperty("--art-bg", item.color || "#dfff73");
+        dom.lightbox.style.setProperty("--card-bg", item.color || "#dfff73");
+        dom.lightbox.style.setProperty("--frame", item.frameColor || item.color || "#dfff73");
+        dom.lightboxArt.innerHTML = `<img src="${escapeAttr(item.fullImage || item.image)}" alt="${escapeAttr(item.title)}" />`;
+        dom.lightboxCopy.innerHTML = `
+          <span class="mini-label">${escapeHTML(item.label || item.year || "Artwork")}</span>
+          <h3>${escapeHTML(item.title)}</h3>
+          <p>${escapeHTML(item.description || item.summary || "")}</p>
+        `;
+        dom.lightbox.hidden = false;
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        dom.lightbox.hidden = true;
+        document.body.style.overflow = "";
+      }
+
+      function buildStops(n) {
+        const base = [
+          { rx: 90, ry: 0 },
+          { rx: 0, ry: 0 },
+          { rx: 0, ry: -90 },
+          { rx: 0, ry: -180 },
+          { rx: 0, ry: -270 },
+          { rx: -90, ry: -360 },
+        ];
+        const out = base.slice(0, Math.min(n, 6));
+        for (let i = 6; i < n; i += 1) out.push({ rx: 0, ry: -360 - (i - 6) * 90 });
+        return out;
+      }
+
+      function sectionIndexFromScroll(y) {
+        const mid = y + innerHeight * 0.5;
+        let idx = 0;
+        for (let i = 0; i < sectionTops.length; i += 1) {
+          if (mid >= sectionTops[i]) idx = i;
+        }
+        return Math.min(idx, N - 1);
+      }
+
+      function progressForSectionIndex(index) {
+        if (N < 2) return 0;
+        const safeIndex = Math.max(0, Math.min(N - 1, index));
+        return safeIndex / (N - 1);
+      }
+
+      function buildSectionTops() {
+        sectionTops = sections.map((section) => section.getBoundingClientRect().top + window.scrollY);
+      }
+
+      function cubeProgressFromScroll(y) {
+        if (N < 2 || sectionTops.length < 2) return 0;
+        const first = sectionTops[0];
+        const last = sectionTops[Math.min(N - 1, sectionTops.length - 1)];
+        const span = Math.max(1, last - first);
+        return Math.max(0, Math.min(1, (y - first) / span));
+      }
+
+      function resize() {
+        maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        buildSectionTops();
+        tgt = progressForSectionIndex(sectionIndexFromScroll(scrollY));
+        smooth = tgt;
+      }
+
+      function easeIO(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      }
+
+      function setCubeTransform(s) {
+        if (N < 2) return;
+        const t = s * (N - 1);
+        const i = Math.min(Math.floor(t), N - 2);
+        const f = easeIO(t - i);
+        const a = STOPS[i];
+        const b = STOPS[i + 1];
+        const rx = a.rx + (b.rx - a.rx) * f;
+        const ry = a.ry + (b.ry - a.ry) * f;
+        dom.cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      }
+
+      function updateHUD(index, s = progressForSectionIndex(index)) {
+        const p = Math.round(s * 100);
+        const si = Math.max(0, Math.min(N - 1, index));
+        dom.hudPct.textContent = `${String(p).padStart(3, "0")}%`;
+        dom.progFill.style.width = `${p}%`;
+        if (si !== lastFaceIdx) {
+          lastFaceIdx = si;
+          const name = FACE_NAMES[si] || "";
+          dom.sceneName.textContent = name;
+          dom.captionNum.textContent = String(si + 1).padStart(2, "0");
+          dom.captionName.textContent = name;
+          sceneDots.forEach((dot, index) => dot.classList.toggle("active", index === si));
+        }
+      }
+
+      function stopAnchorAnim() {
+        if (anchorAnim) cancelAnimationFrame(anchorAnim);
+        anchorAnim = null;
+      }
+
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function smoothScrollToY(targetY, duration = 900, targetIndex = null) {
+        stopAnchorAnim();
+        velocity = 0;
+        const startY = window.scrollY;
+        const diff = targetY - startY;
+        const start = performance.now();
+        const lockedIndex = Number.isFinite(targetIndex) ? targetIndex : sectionIndexFromScroll(targetY);
+        const tick = (now) => {
+          const p = Math.min(1, (now - start) / duration);
+          const y = startY + diff * easeInOutCubic(p);
+          window.scrollTo(0, y);
+          tgt = progressForSectionIndex(lockedIndex);
+          if (p < 1) anchorAnim = requestAnimationFrame(tick);
+          else anchorAnim = null;
+        };
+        anchorAnim = requestAnimationFrame(tick);
+      }
+
+      function restoreEditableCopy() {
+        const saved = localStorage.getItem(COPY_KEY);
+        if (!saved) return;
+        try {
+          const cardCopies = JSON.parse(saved);
+          document.querySelectorAll(".text-card").forEach((card, index) => {
+            if (cardCopies[index]) card.innerHTML = cardCopies[index];
+          });
+          revealEls = [...document.querySelectorAll(".tag, .mini-label, h1, h2, .body-text, .stat-row, .cta, .cta-back, .h-line")];
+        } catch {
+          localStorage.removeItem(COPY_KEY);
+        }
+      }
+
+      function setEditMode(enabled) {
+        document.querySelectorAll(".text-card").forEach((card) => {
+          card.contentEditable = enabled ? "true" : "false";
+        });
+        dom.editCopy.textContent = enabled ? "Save copy" : "Edit copy";
+        if (!enabled) {
+          const cardCopies = [...document.querySelectorAll(".text-card")].map((card) => card.innerHTML);
+          localStorage.setItem(COPY_KEY, JSON.stringify(cardCopies));
+        }
+      }
+
+      restoreEditableCopy();
+      resize();
+
+      if (motionAllowed) {
+        window.addEventListener(
+          "wheel",
+          (event) => {
+            event.preventDefault();
+            const linePx = 16;
+            const pagePx = innerHeight * 0.9;
+            const delta = event.deltaMode === 1 ? event.deltaY * linePx : event.deltaMode === 2 ? event.deltaY * pagePx : event.deltaY;
+            if (Math.abs(delta) < 5) return;
+            stopAnchorAnim();
+            velocity += delta;
+            velocity = Math.max(-600, Math.min(600, velocity));
+          },
+          { passive: false },
+        );
+      }
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          tgt = progressForSectionIndex(sectionIndexFromScroll(scrollY));
+        },
+        { passive: true },
+      );
+
+      window.addEventListener("resize", resize);
+
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          document.body.style.setProperty("--mx", `${(event.clientX / innerWidth) * 100}%`);
+          document.body.style.setProperty("--my", `${(event.clientY / innerHeight) * 100}%`);
+        },
+        { passive: true },
+      );
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.1 },
+      );
+      revealEls.forEach((element) => observer.observe(element));
+
+      document.addEventListener("click", (event) => {
+        const galleryItem = event.target.closest(".archive-item[data-artwork-id]");
+        if (galleryItem) {
+          openLightbox(galleryItem.dataset.artworkId);
+          return;
+        }
+
+        const anchor = event.target.closest('a[href^="#s"]');
+        if (!anchor) return;
+        const target = document.querySelector(anchor.getAttribute("href"));
+        if (!target) return;
+        event.preventDefault();
+        const index = sections.indexOf(target);
+        const y = index >= 0 ? sectionTops[index] : target.getBoundingClientRect().top + window.scrollY;
+        smoothScrollToY(Math.max(0, y), 900, index);
+      });
+
+      let editing = false;
+      dom.editCopy.addEventListener("click", () => {
+        editing = !editing;
+        setEditMode(editing);
+      });
+
+      dom.tuneArt.addEventListener("click", () => {
+        dom.tuner.hidden = !dom.tuner.hidden;
+        if (!dom.tuner.hidden) syncTunerControls();
+      });
+
+      dom.tuneSelect.addEventListener("change", () => {
+        selectedTuneId = dom.tuneSelect.value;
+        syncTunerControls();
+      });
+
+      [dom.tuneScale, dom.tuneX, dom.tuneY, dom.tuneAspect, dom.tuneFit, dom.tuneColor, dom.tuneFrameColor].forEach((control) => {
+        control.addEventListener("input", applyTunerChange);
+        control.addEventListener("change", applyTunerChange);
+      });
+
+      dom.copySnippet.addEventListener("click", async () => {
+        updateSnippet();
+        try {
+          await navigator.clipboard.writeText(dom.tuneSnippet.value);
+          dom.copySnippet.textContent = "Copied";
+          setTimeout(() => {
+            dom.copySnippet.textContent = "Copy snippet";
+          }, 1100);
+        } catch {
+          dom.tuneSnippet.select();
+        }
+      });
+
+      dom.lightboxClose.addEventListener("click", closeLightbox);
+      dom.lightbox.addEventListener("click", (event) => {
+        if (event.target === dom.lightbox) closeLightbox();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !dom.lightbox.hidden) closeLightbox();
+      });
+
+      const frame = (now) => {
+        requestAnimationFrame(frame);
+        const dt = Math.min((now - lastNow) / 1000, 0.05);
+        lastNow = now;
+
+        velocity *= Math.pow(Math.abs(velocity) > 200 ? 0.8 : 0.9, dt * 60);
+        if (Math.abs(velocity) < 0.01) velocity = 0;
+        if (Math.abs(velocity) > 0.2) {
+          const next = Math.max(0, Math.min(scrollY + velocity * 0.1, maxScroll));
+          window.scrollTo(0, next);
+          tgt = progressForSectionIndex(sectionIndexFromScroll(next));
+        }
+
+        const activeIndex = sectionIndexFromScroll(scrollY);
+        tgt = progressForSectionIndex(activeIndex);
+        smooth += (tgt - smooth) * (1 - Math.exp(-dt * 8));
+        smooth = Math.max(0, Math.min(1, smooth));
+        updateHUD(activeIndex, smooth);
+        setCubeTransform(smooth);
+      };
+
+      requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>

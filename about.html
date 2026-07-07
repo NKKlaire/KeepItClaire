@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About | Keep it Claire</title>
+    <meta name="description" content="Keep it Claire 的 About 页，展示 Claire 的社媒账号、内容数据、联系方式和近况入口。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:opsz,wght@9..144,650;9..144,850&family=Noto+Sans+SC:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="about">
+    <div class="noise"></div>
+    <div class="ambient ambient-one" data-parallax="0.08"></div>
+    <div class="ambient ambient-two" data-parallax="-0.05"></div>
+    <div class="ambient ambient-three" data-parallax="0.1"></div>
+    <div class="cursor-glow" id="cursor-glow"></div>
+    <div class="wand-cursor" id="wand-cursor" aria-hidden="true">🪄</div>
+    <div class="portal-burst" id="portal-burst"></div>
+
+    <header class="topbar">
+      <a class="brand" href="./index.html">Keep it Claire</a>
+      <nav class="nav" aria-label="Keep it Claire 导航">
+        <a class="site-tag" href="./index.html">Home</a>
+        <a class="site-tag" href="./blog.html">Blog</a>
+        <a class="site-tag" href="./art.html">Art</a>
+        <a class="site-tag current" href="./about.html">About</a>
+      </nav>
+      <a class="button ghost topbar-archive" href="./index.html">Home</a>
+    </header>
+
+    <main class="page">
+      <section class="landing-page media-landing reveal" id="about" aria-label="About 与联系方式">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow">About landing</p>
+            <h2>社媒账号、内容数据和联系方式。</h2>
+          </div>
+          <p class="section-note">这里统一放平台入口、粉丝、点赞、代表内容和联系方式。想找到我，就从 About 进入。</p>
+        </div>
+
+        <div class="media-grid">
+          <article class="social-profile-card xhs-card">
+            <span class="mini-label">小红书</span>
+            <h3>克莱尔在地球🌏</h3>
+            <p>主社媒 IP。用于承接 AI 产品观察、生活笔记和视频创作。</p>
+            <div class="metric-strip">
+              <span><strong>4K</strong> 粉丝</span>
+              <span><strong>177K</strong> 赞藏</span>
+              <span><strong>700K</strong> 最高阅读</span>
+              <span><strong>110K</strong> 最高点赞</span>
+            </div>
+            <a class="button primary external-link" href="https://xhslink.com/m/2I4mk3DzXc0" target="_blank" rel="noreferrer">打开小红书</a>
+          </article>
+          <article class="social-profile-card apple-card">
+            <span class="mini-label">小红书</span>
+            <h3>雨天小苹果🍎</h3>
+            <p>存放大量艺术作品、绘画和审美表达。它更像一个纯粹记录与分享的账号，承载我对色彩、画面和感知的练习。</p>
+            <div class="metric-strip">
+              <span><strong>50</strong> 粉丝</span>
+              <span><strong>544</strong> 赞藏</span>
+              <span><strong>500+</strong> 阅读</span>
+            </div>
+            <a class="button ghost external-link" href="https://xhslink.com/m/8Y7TW7QXOeC" target="_blank" rel="noreferrer">打开小红书</a>
+          </article>
+          <article class="social-profile-card wechat-card">
+            <span class="mini-label">微信公众号</span>
+            <h3>KKLAND 卡卡乐</h3>
+            <p>To write is to taste life twice. 更完整的长文、观点整理和阶段性作品发布。</p>
+            <div class="metric-strip">
+              <span><strong>100+</strong> 订阅</span>
+            </div>
+          </article>
+          <article class="social-profile-card icon-card">
+            <span class="mini-label">联系方式</span>
+            <h3>找到我</h3>
+            <div class="social-icon-grid" aria-label="更多社交平台">
+              <a href="./profiles/profile.html?id=jike" aria-label="即刻">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M30 8v23c0 6.1-3.7 9-8.8 9-3.5 0-6.4-1.4-8.2-3.9l4.5-4.3c1 1.3 2.1 2 3.7 2 1.8 0 2.9-1.1 2.9-3.5V8H30Z" />
+                </svg>
+              </a>
+              <a href="./profiles/profile.html?id=wechat" aria-label="微信">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M19.6 12C10.9 12 4 17.5 4 24.3c0 3.9 2.3 7.4 5.9 9.7l-1.5 5 5.6-2.8c1.7.4 3.6.7 5.6.7 8.6 0 15.6-5.5 15.6-12.4C35.2 17.5 28.2 12 19.6 12Zm-5.2 10.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm10.3 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
+                  <path d="M44 30.4c0 3-1.8 5.7-4.6 7.4l1.1 3.8-4.2-2.1c-1.3.3-2.7.5-4.2.5-4.9 0-9.1-2.4-10.8-5.9 7.3-.6 13-5.2 14.8-11.2 4.7 1.2 7.9 4.1 7.9 7.5Z" />
+                </svg>
+              </a>
+              <a href="mailto:xxclr27yzl@gmail.com" aria-label="Email">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M8 12h32c2.2 0 4 1.8 4 4v20c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4V16c0-2.2 1.8-4 4-4Zm2.8 5 13.1 11.1L37.2 17H10.8Zm28.7 3.3L25.7 31.9a2.7 2.7 0 0 1-3.4 0L8.5 20.3V35h31V20.3Z" />
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="./articles-data.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

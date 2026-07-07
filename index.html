@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="claire">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keep it Claire | Home</title>
+    <meta
+      name="description"
+      content="Keep it Claire 是 Claire 的个人网站：AI 写作、艺术表达、内容创作和更多连接。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:opsz,wght@9..144,560;9..144,720&family=Noto+Sans+SC:wght@400;500;700;800&family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./home-cube.css" />
+  </head>
+  <body data-page="home-cube">
+    <span id="about" class="legacy-anchor" aria-hidden="true"></span>
+    <div class="page-noise" aria-hidden="true"></div>
+    <div class="cursor-light" id="cursor-light" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="Keep it Claire Home">Keep it Claire</a>
+      <nav class="nav" aria-label="Keep it Claire 导航">
+        <a class="site-tag current" href="./index.html">Home</a>
+        <a class="site-tag" href="./blog.html">Blog</a>
+        <a class="site-tag" href="./art.html">Art</a>
+        <a class="site-tag" href="./about.html">About</a>
+      </nav>
+    </header>
+
+    <div class="home-shell" aria-hidden="true">
+      <div id="scene" class="cube-scene">
+        <div id="cube" class="story-cube"></div>
+      </div>
+    </div>
+
+    <aside class="scene-hud" aria-label="首页浏览进度">
+      <div id="hud-pct">000%</div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <div id="scene-name">Claire's room</div>
+    </aside>
+
+    <nav id="scene-strip" class="scene-strip" aria-label="Cube 场景导航"></nav>
+
+    <main id="scroll-container" class="scroll-container"></main>
+
+    <button class="edit-toggle" id="edit-copy" type="button">Edit copy</button>
+
+    <script src="./content/home-cube.config.js"></script>
+    <script src="./home-cube.js"></script>
+  </body>
+</html>

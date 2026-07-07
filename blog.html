@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog | Keep it Claire</title>
+    <meta name="description" content="Keep it Claire 的 Blog 目录，只展示文章标题，点击后进入具体阅读页。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:opsz,wght@9..144,650;9..144,850&family=Noto+Sans+SC:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="blog">
+    <div class="noise"></div>
+    <div class="ambient ambient-one" data-parallax="0.08"></div>
+    <div class="ambient ambient-two" data-parallax="-0.05"></div>
+    <div class="ambient ambient-three" data-parallax="0.1"></div>
+    <div class="cursor-glow" id="cursor-glow"></div>
+    <div class="wand-cursor" id="wand-cursor" aria-hidden="true">🪄</div>
+    <div class="portal-burst" id="portal-burst"></div>
+
+    <header class="topbar">
+      <a class="brand" href="./index.html">Keep it Claire</a>
+      <nav class="nav" aria-label="Keep it Claire 导航">
+        <a class="site-tag" href="./index.html">Home</a>
+        <a class="site-tag current" href="./blog.html">Blog</a>
+        <a class="site-tag" href="./art.html">Art</a>
+        <a class="site-tag" href="./about.html">About</a>
+      </nav>
+      <a class="button ghost topbar-archive" href="./index.html">Home</a>
+    </header>
+
+    <main class="page">
+      <section class="directory-landing" id="blog" aria-label="Blog 标题目录">
+        <section class="pinned-articles" id="pinned-articles" aria-label="置顶文章"></section>
+
+        <div class="directory-tools">
+          <div class="tab-bar" aria-label="文章筛选">
+            <button class="tab-button active" type="button" data-filter="all">全部</button>
+            <button class="tab-button" type="button" data-filter="research">研究</button>
+            <button class="tab-button" type="button" data-filter="product">产品</button>
+            <button class="tab-button" type="button" data-filter="notes">随笔</button>
+          </div>
+          <p class="article-total"><span id="article-count">0</span> pieces in this archive</p>
+        </div>
+
+        <div class="article-flow blog-title-list" id="article-list" data-display="titles"></div>
+      </section>
+    </main>
+
+    <script src="./articles-data.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keep it Claire</title>
+    <meta name="description" content="Keep it Claire article page" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:opsz,wght@9..144,650;9..144,850&family=Noto+Sans+SC:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="article">
+    <div class="noise"></div>
+    <div class="ambient ambient-one" data-parallax="0.08"></div>
+    <div class="ambient ambient-two" data-parallax="-0.05"></div>
+    <div class="ambient ambient-three" data-parallax="0.1"></div>
+
+    <header class="article-shell-topbar">
+      <a class="reader-backlink" href="./blog.html">← Back to Blog</a>
+      <a class="brand article-brand" href="./index.html">Keep it Claire</a>
+    </header>
+
+    <main class="article-page">
+      <section class="article-reader reveal">
+        <aside class="reader-left">
+          <div class="reader-map-card">
+            <p class="reader-map-kicker">Contents</p>
+            <h2 class="reader-map-title" id="article-side-title">Keep it Claire</h2>
+            <div class="reader-map-links toc-list" id="article-toc"></div>
+          </div>
+        </aside>
+
+        <div class="reader-center">
+          <section class="article-hero-card">
+            <p class="eyebrow article-eyebrow" id="article-kicker">Read me</p>
+            <h1 id="article-title" data-editable-field="title">Keep it Claire</h1>
+            <div class="reader-article-meta" id="article-meta"></div>
+          </section>
+
+          <article class="article-content-sheet" id="article-content"></article>
+        </div>
+      </section>
+    </main>
+
+    <script src="./articles-data.js"></script>
+    <script src="./article-content-data.js"></script>
+    <script src="./article-bodies.js"></script>
+    <script src="./article.js"></script>
+  </body>
+</html>
