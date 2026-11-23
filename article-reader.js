@@ -73,14 +73,25 @@
       && cells.every((cell) => cell.colSpan === 1 && cell.rowSpan === 1);
     if (layoutOnly) {
       const gallery = make('div', 'reader-media-grid');
-      if (cells.filter(hasMedia).length === 1) gallery.classList.add('reader-media-single');
+      const copyCells = cells.filter((cell) => !hasMedia(cell) && cell.textContent.trim());
+      const split = copyCells.length > 0 && copyCells.length < cells.length;
+      const story = split ? make('section', 'reader-story') : gallery;
+      const copy = split ? make('div', 'reader-story-copy') : null;
+      const media = split ? make('div', 'reader-story-media') : null;
+      const mediaCount = cells.filter(hasMedia).length;
+      if (mediaCount === 1) gallery.classList.add('reader-media-single');
+      gallery.style.setProperty('--gallery-columns', Math.min(3, mediaCount));
+      gallery.dataset.items = String(mediaCount);
+      if (split) {
+        media.append(gallery); story.append(copy, media);
+      }
       cells.forEach((cell) => {
         const item = make('div', 'reader-media-item');
-        if (cell.textContent.trim().length > 150 && !hasMedia(cell)) item.classList.add('reader-media-copy');
+        const isCopy = copyCells.includes(cell);
         while (cell.firstChild) item.append(cell.firstChild);
-        gallery.append(item);
+        (split && isCopy ? copy : gallery).append(item);
       });
-      table.replaceWith(gallery);
+      table.replaceWith(story);
       return;
     }
     const wrapper = make('div', 'reader-table');
@@ -100,20 +111,29 @@
       && rows.every((row) => row.cells.length === cells.length && [...row.cells].every((cell) => cell.colSpan === 1 && cell.rowSpan === 1));
     if (canStack) {
       const labels = cells.map((cell) => cell.textContent.trim());
+      const editorial = hasMedia(table);
+      wrapper.classList.toggle('reader-table-editorial', editorial);
       rows[0].classList.add('reader-table-head');
       cells.forEach((cell) => { cell.setAttribute('role', 'columnheader'); });
-      rows.slice(1).forEach((row) => [...row.cells].forEach((cell, i) => { cell.dataset.columnLabel = labels[i]; }));
+      rows.slice(1).forEach((row) => {
+        row.dataset.columns = String(cells.length);
+        if (cells.length === 3 && hasMedia(row.cells[2])) row.classList.add('reader-record-evidence');
+        [...row.cells].forEach((cell, i) => {
+          cell.dataset.columnLabel = labels[i];
+          cell.classList.toggle('reader-evidence-cell', hasMedia(cell));
+        });
+      });
       const switcher = make('button', 'reader-table-toggle');
       switcher.type = 'button';
       switcher.setAttribute('aria-controls', viewport.id);
       const applyMode = (stacked) => {
         wrapper.classList.toggle('reader-table-stacked', stacked);
-        switcher.textContent = stacked ? '切换表格视图' : '按条目阅读';
+        switcher.textContent = stacked ? '切换表格对照' : '切换图文阅读';
         switcher.setAttribute('aria-pressed', String(stacked));
-        hint.textContent = stacked ? '对比表 · 按条目阅读' : '对比表 · 可横向滚动';
+        hint.textContent = stacked ? '图文对照' : '表格对照 · 可横向滚动';
       };
       toolbar.append(switcher);
-      applyMode(window.matchMedia('(max-width: 800px)').matches);
+      applyMode(editorial || window.matchMedia('(max-width: 800px)').matches);
       switcher.addEventListener('click', () => applyMode(!wrapper.classList.contains('reader-table-stacked')));
     }
   });
@@ -212,7 +232,7 @@
     button.type = 'button';
     button.setAttribute('aria-label', `查看完整图 ${index + 1}`);
     button.setAttribute('aria-haspopup', 'dialog');
-    const caption = make('figcaption', '', `图 ${index + 1} · 点击查看完整图`);
+    const caption = make('figcaption', '', `图 ${index + 1}`);
     // A linked image still exposes its original destination in the caption.
     const anchor = image.closest('a');
     if (anchor && anchor.querySelectorAll('img').length === 1 && !anchor.textContent.trim()) {
@@ -228,9 +248,10 @@
     const sizePreview = () => {
       const width = image.naturalWidth || Number(image.getAttribute('width'));
       const height = image.naturalHeight || Number(image.getAttribute('height'));
-      const isLong = width > 0 && height / width > 2;
+      const isLong = width > 0 && height / width > 2.4;
       figure.classList.toggle('reader-image-long', isLong);
-      if (!anchor) caption.textContent = `图 ${index + 1}${isLong ? ' · 长图预览' : ''} · 点击查看完整图`;
+      figure.classList.toggle('reader-image-portrait', width > 0 && height / width > 1.25 && !isLong);
+      if (!anchor) caption.textContent = `图 ${index + 1}${isLong ? ' · 长图' : ''}`;
     };
     sizePreview(); image.addEventListener('load', sizePreview);
     image.addEventListener('error', () => {
@@ -275,4 +296,55 @@
     const wrapper = make('div', 'reader-embed');
     frame.before(wrapper); wrapper.append(frame);
   });
+
+  // A gallery has one affordance and one visual rhythm, not repeated instructions.
+  content.querySelectorAll('.reader-media-grid').forEach((gallery) => {
+    const count = gallery.querySelectorAll('.reader-image').length;
+    if (!count) return;
+    const group = make('div', 'reader-gallery-group');
+    const caption = make('div', 'reader-gallery-label', `${count} 张配图 · 点击放大`);
+    gallery.before(group); group.append(caption, gallery);
+    const attachments = [...gallery.children].filter((item) => !item.querySelector('img') && item.querySelector('.reader-video, video'));
+    if (attachments.length) {
+      const attachmentList = make('div', 'reader-gallery-attachments');
+      attachmentList.append(...attachments); group.append(attachmentList);
+    }
+    gallery.style.setProperty('--gallery-columns', Math.min(4, gallery.children.length));
+    gallery.classList.toggle('reader-media-single', gallery.children.length === 1);
+    if (count > 1) {
+      gallery.tabIndex = 0;
+      gallery.setAttribute('role', 'region');
+      gallery.setAttribute('aria-label', `${count} 张配图，可横向滚动`);
+    }
+  });
+
+  const toolbar = make('div', 'reader-preferences');
+  toolbar.setAttribute('aria-label', '阅读设置');
+  const sizeLabel = make('label', '', '正文字号');
+  const sizeSelect = make('select');
+  sizeSelect.setAttribute('aria-label', '正文字号');
+  [['16', '标准'], ['18', '较大'], ['20', '大字']].forEach(([value, label]) => {
+    const option = make('option', '', label); option.value = value; sizeSelect.append(option);
+  });
+  sizeLabel.append(sizeSelect); toolbar.append(sizeLabel);
+  sizeSelect.addEventListener('change', () => content.style.setProperty('--reader-font-size', `${sizeSelect.value}px`));
+  if (images.length) {
+    const browse = make('button', '', `浏览配图 · ${images.length}`); browse.type = 'button';
+    browse.addEventListener('click', () => openImage(0, browse)); toolbar.append(browse);
+  }
+  document.querySelector('.article-hero-card')?.append(toolbar);
+  const progress = make('progress', 'reader-progress');
+  progress.max = 100; progress.value = 0; progress.setAttribute('aria-label', '文章阅读进度');
+  document.body.prepend(progress);
+  let progressPending = false;
+  const updateProgress = () => {
+    const height = content.offsetHeight - innerHeight;
+    progress.value = height > 0 ? Math.max(0, Math.min(100, -content.getBoundingClientRect().top / height * 100)) : 100;
+    progressPending = false;
+  };
+  window.addEventListener('scroll', () => {
+    if (!progressPending) { progressPending = true; requestAnimationFrame(updateProgress); }
+  }, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
 })();
