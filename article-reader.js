@@ -155,12 +155,15 @@
     const image = images[activeIndex];
     stage.classList.remove('reader-native-size');
     fullImage.style.width = ''; zoomScale = 1;
-    zoomIn.disabled = false; zoomOut.disabled = false;
+    zoom.disabled = true; zoomIn.disabled = true; zoomOut.disabled = true;
     zoom.textContent = '原始尺寸'; zoom.setAttribute('aria-pressed', 'false');
     status.hidden = false; status.textContent = '正在加载完整图片…';
     fullImage.hidden = true;
     fullImage.alt = image.alt;
-    fullImage.onload = () => { status.hidden = true; fullImage.hidden = false; };
+    fullImage.onload = () => {
+      status.hidden = true; fullImage.hidden = false;
+      zoom.disabled = false; zoomIn.disabled = false; zoomOut.disabled = false;
+    };
     fullImage.onerror = () => { status.textContent = '图片暂时无法加载，请使用「打开原图」重试。'; };
     fullImage.src = image.currentSrc || image.src;
     original.href = fullImage.src;
@@ -191,7 +194,7 @@
     zoom.setAttribute('aria-pressed', String(native));
   });
   const changeZoom = (multiplier) => {
-    if (!fullImage.naturalWidth) return;
+    if (!fullImage.naturalWidth || fullImage.hidden) return;
     const currentWidth = fullImage.getBoundingClientRect().width;
     const targetWidth = Math.max(160, Math.min(fullImage.naturalWidth * 3, currentWidth * multiplier));
     stage.classList.add('reader-native-size');
